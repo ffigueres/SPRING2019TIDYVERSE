@@ -1,0 +1,130 @@
+---
+title: "Data Import with Readr"
+author: "Fernando Figueres"
+subtitle: "DATA-607, Spring 2019"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Introduction
+
+Readr's primary function is to load plain-text rectangular files into R data frames. It's also able to write data frames to different flat files and it includes additional functions to address different data types, unconventional delimiters, encoding, etc.
+
+In this vignette, we will explain how to install and load the package and then explore its basic functionality by loading a CSV file into R. Finally, we will save our data frame as a TSV file.
+
+By default, Readr will try to assign the appropriate data type to each column. In our example with will import a subset of the columns using `cols_only` and we'll use the `col_*` functions to specify each data type.
+
+# Installation
+
+Readr can be installed along with the complete set of Tidyverse packages by using the command:
+
+```{r eval=FALSE}
+install.packages("tidyverse")
+```
+
+Alternativley, it can be installed by itself by running:
+
+```{r eval=FALSE}
+install.packages("readr")
+```
+
+# Loading and Basic Use
+
+Before using the package it should be loaded. As before, it can be loaded along with the rest of the Tydiverse packages using the command below:
+
+```{r}
+library(tidyverse)
+```
+
+Or it can be loaded independently using:
+
+```{r}
+library(readr)
+```
+
+Readr is designed to import 7 types of flat files and has a specific function for each:
+
+read_csv(): comma separated (CSV) files  
+read_tsv(): tab separated files  
+read_delim(): general delimited files  
+read_fwf(): fixed width files  
+read_table(): tabular files where columns are separated by white-space.  
+read_log(): web log files  
+
+By default, Readr will try to assign the appropiate data type to each column. 
+
+col_logical(): containing only T, F, TRUE or FALSE.  
+col_integer(): integers.  
+col_double(): doubles.  
+col_character(): strings, and everything else.  
+col_factor(levels, ordered):a fixed set of values.  
+col_date(format = ""): with the locale's date_format.  
+col_time(format = ""): with the locale's time_format.  
+col_datetime(format = ""): ISO8601 date times.  
+col_number() numbers containing the grouping_mark  .
+col_skip(): don't import this column.  
+col_guess(): parse using the "best" type based on the input.  
+
+## Basic import with default options
+
+Lets import our CSV file using Readr's default options.
+
+```{r}
+fifa <- read_csv(
+  file = "fifa.csv")
+```
+As shown above, Readr will output the result of the operation along with the data type for each variable. In some cases, the output is truncated so we'll use the `spec()` function to get the full list.
+
+```{r}
+spec(fifa)
+```
+
+There are more variables than we need and many of them have a data type which isnt' optimal. Next we'll import a subset of variables and manually assign data types.
+
+## Filtered import
+
+```{r}
+fifa_subset <- read_csv(
+  file = "fifa.csv",
+  cols_only(
+    Name = col_character(),
+    Age = col_integer(),
+    Nationality = col_factor(),
+    Club = col_factor(),
+    Joined = col_date(format = "%b %d, %Y")),
+  col_names = TRUE
+  )
+```
+
+We now have a data frame with our 5 variables, each with an appropiate data type.
+
+```{r}
+head(fifa_subset)
+```
+
+# Saving data frames to file
+
+Perhaps we have finished with out analysis and we'd like to share our data with a colleague. We can save our data to a file using Readr's `write_*` functions.
+
+In this case, we can save it as a tab delimted file by using the following code.
+
+```{r}
+write_tsv(
+  fifa_subset,
+  path = "fifa_subset.tsv"
+)
+```
+
+
+
+**References**
+
+https://readr.tidyverse.org/
+
+https://readr.tidyverse.org/reference/cols.html
+
+https://www.kaggle.com/karangadiya/fifa19
+
+https://www.ibm.com/support/knowledgecenter/en/SSQHWE_10.1.0/com.ibm.ondemand.mp.doc/arsa0257.htm
+
